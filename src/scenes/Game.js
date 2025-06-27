@@ -33,15 +33,15 @@ export class Game extends Scene {
         this.rightPaddle = this.physics.add.image(WIDTH - 50, HEIGHT/2, "paddle");
         this.rightPaddle.setImmovable(true); // Make the right paddle immovable 
 
-        // Add collision detection between ball and either of the paddles
-        this.physics.add.collider(this.ball, this.leftPaddle, this.hitPaddle, null, this);
-        this.physics.add.collider(this.ball, this.rightPaddle, this.hitPaddle, null, this);
-
         // Add ball as a physics object, scale it down
         this.ball = this.physics.add.image(WIDTH/2, HEIGHT/2, 'ball');
         this.ball.setScale(0.05, 0.05);
         this.ball.setCollideWorldBounds(true);
         this.ball.setBounce(1, 1);
+
+        // Add collision detection between ball and either of the paddles
+        this.physics.add.collider(this.ball, this.leftPaddle, this.hitPaddle, null, this);
+        this.physics.add.collider(this.ball, this.rightPaddle, this.hitPaddle, null, this);
 
         // Ball starts stationary; press SPACE to launch
         this.ball.setVelocity(0, 0);
