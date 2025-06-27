@@ -11,6 +11,8 @@ export class Game extends Scene {
         this.leftPaddle = null;
         this.rightPaddle = null;
         this.ballInMotion = false;
+        this.wasd = null;
+        this.cursors = null;
     }
 
     preload() {
@@ -21,20 +23,57 @@ export class Game extends Scene {
     }
 
     create() {
-        // Add background, ball, and paddles to the sceneAdd commentMore actions
+        // Add background
         this.add.image(WIDTH/2, HEIGHT/2, 'background').setScale(0.8, 0.8);
-        this.ball = this.add.image(WIDTH/2, HEIGHT/2, 'ball').setScale(0.05, 0.05);
-        this.leftPaddle = this.add.image(50, 384, "paddle");
-        this.rightPaddle = this.add.image(974, 384, "paddle");
-        this.ball = this.physics.add.image(WIDTH/2, HEIGHT/2, 'ball').setScale(0.05, 0.05.refreshBody());
+
+        // Add paddles
+        this.leftPaddle = this.physics.add.image(50, HEIGHT/2, "paddle");
+        this.leftPaddle.setImmovable(true); // Make the left paddle immovable
+
+        this.rightPaddle = this.physics.add.image(WIDTH - 50, HEIGHT/2, "paddle");
+        this.rightPaddle.setImmovable(true); // Make the right paddle immovable 
+
+        // Add collision detection between ball and either of the paddles
+        this.physics.add.collider(this.ball, this.leftPaddle, this.hitPaddle, null, this);
+        this.physics.add.collider(this.ball, this.rightPaddle, this.hitPaddle, null, this);
+
+        // Add ball as a physics object, scale it down
+        this.ball = this.physics.add.image(WIDTH/2, HEIGHT/2, 'ball');
+        this.ball.setScale(0.05, 0.05);
         this.ball.setCollideWorldBounds(true);
         this.ball.setBounce(1, 1);
-        this.ball.setVelocity(200, 200);
-        // Listen for "keyspace down" event, calling startBall function upon press
+
+        // Ball starts stationary; press SPACE to launch
+        this.ball.setVelocity(0, 0);
+        this.ballInMotion = false;
+
+        // Listen for "space" key to start ball
         this.input.keyboard.on('keydown-SPACE', this.startBall, this);
+
+        // Assigns U/D/L/R keys to the cursors variable
+        this.cursors = this.input.keyboard.createCursorKeys();
+        // Assigns W/S keys to the wasd variable
+        this.wasd = this.input.keyboard.addKeys({
+            up: Phaser.Input.Keyboard.KeyCodes.W,
+            down: Phaser.Input.Keyboard.KeyCodes.S
+        })
     }
 
     update() {
+        // leftPaddle movement logic
+        if (this.wasd.up.isDown && this.leftPaddle.y > 0) {
+            this.leftPaddle.y -= 5;
+        } else if (this.wasd.down.isDown && this.leftPaddle.y < HEIGHT) {
+            this.leftPaddle.y += 5;
+        }
+
+        // rightPaddle movement logic
+        if (this.cursors.up.isDown && this.rightPaddle.y > 0) {
+            this.rightPaddle.y -= 5;
+        } else if (this.cursors.down.isDown && this.rightPaddle.y < HEIGHT) {
+            this.rightPaddle.y += 5;
+        }
+
     }
 
     startBall() {
@@ -42,6 +81,10 @@ export class Game extends Scene {
             this.ball.setVelocity(200, 200); // sets ball velocity
             this.ballInMotion = true; // sets flag to ball is in motion
         }
+    }
+
+    hitPaddle() {
+
     }
 
 }
