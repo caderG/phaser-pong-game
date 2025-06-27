@@ -13,6 +13,11 @@ export class Game extends Scene {
         this.ballInMotion = false;
         this.wasd = null;
         this.cursors = null;
+        // Points logic
+        this.leftScore = 0;
+        this.rightScore = 0;
+        this.leftScoreText = null;
+        this.rightScoreText = null;
     }
 
     preload() {
@@ -57,6 +62,10 @@ export class Game extends Scene {
             up: Phaser.Input.Keyboard.KeyCodes.W,
             down: Phaser.Input.Keyboard.KeyCodes.S
         })
+
+        // Display scores on the screen
+        this.leftScoreText = this.add.text(100, 50, '0', { fontSize: '50px' });
+        this.rightScoreText = this.add.text(924, 50, '0', { fontSize: '50px' });
     }
 
     update() {
@@ -74,6 +83,17 @@ export class Game extends Scene {
             this.rightPaddle.y += 5;
         }
 
+        // Fall condition check
+        const margin = 30;
+        if (this.ball.x < margin) { // ball hits left wall
+            this.rightScore += 1;
+            this.rightScoreText.setText(this.rightScore);
+            this.resetBall();
+        } else if (this.ball.x > WIDTH - margin) { // ball hits right wall
+            this.leftScore += 1;
+            this.leftScoreText.setText(this.leftScore);
+            this.resetBall();
+        }
     }
 
     startBall() {
@@ -83,8 +103,22 @@ export class Game extends Scene {
         }
     }
 
-    hitPaddle() {
+    hitPaddle(ball, paddle) {
+        let velocityFactor = 1.3;
+        let newVelocityX = ball.body.velocity.x * velocityFactor;
+        let newVelocityY = ball.body.velocity.y * velocityFactor;
 
+        let angleDeviationInDeg = Phaser.Math.Between(-30, 30);
+        let angleDeviationInRad = Phaser.Math.DegToRad(angleDeviationInDeg)
+        let newVelocity = new Phaser.Math.Vector2(newVelocityX, newVelocityY).rotate(angleDeviationInRad);
+        ball.setVelocity(newVelocity.x, newVelocity.y);
+    }
+
+    resetBall() {
+        this.ball.setPosition(WIDTH/2, HEIGHT/2);
+        this.ball.setVelocity(0, 0);
+        this.ballInMotion = false;
+        this.startBall();
     }
 
 }
